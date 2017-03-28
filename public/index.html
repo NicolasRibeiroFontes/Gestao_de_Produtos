@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br" ng-app="gestaodeprodutos">
+<head>
+    <title>Gestão de Produtos</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="css/colorpicker.css"/>
+    <link rel="stylesheet" href="css/datepicker.css"/>
+    <link rel="stylesheet" href="css/uniform.css"/>
+    <link rel="stylesheet" href="css/select2.css"/>
+    <link rel="stylesheet" href="css/matrix-style.css"/>
+    <link rel="stylesheet" href="css/matrix-media.css"/>
+    <link rel="stylesheet" href="css/bootstrap-wysihtml5.css"/>
+    <link href="font-awesome/css/font-awesome.css" rel="stylesheet"/>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,800' rel='stylesheet' type='text/css'>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js"></script>
+    <script src="js/app.js"></script>
+</head>
+<body ng-controller="produtos">
+
+<div>
+    <br/>
+        <h4> < / Nicolas Fontes ></h4>
+    <br/>
+</div>
+
+
+<div id="sidebar"><a href="#" class="visible-phone"><i class="icon icon-list"></i>Forms</a>
+    <ul>
+        <li><a href="index.html"><i class="icon icon-home"></i> <span>Dashboard</span></a></li>
+        <li class="active"><a href="index.html"><i class="icon icon-signal"></i> <span>Produtos</span></a></li>
+        <li><a href="estoque.html"><i class="icon icon-briefcase"></i> <span>Estoque</span></a></li>
+    </ul>
+</div>
+
+<!--close-left-menu-stats-sidebar-->
+
+<div id="content"  ng-init="listarProdutos()">
+    <div id="content-header">
+        <div id="breadcrumb"><a href="index.html" title="Go to Home" class="tip-bottom"><i class="icon-home"></i>
+            Dashboard</a> <a href="#" class="current">Gestão de Produtos</a></div>
+        <h1>Gestão de Produtos</h1>
+        <div class="alert-success offset2 span12" ng-show="divAlert">
+            <div style="margin-right: 40px" align="right"><p><i class="icon-remove" ng-click="fecharAlert()"></i></p></div>
+            <h4 align="center">{{mensagemAlert}}</h4>
+            <br/>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="container-fluid">
+        <hr>
+        <div class="row-fluid">
+
+            <div class="span6" ng-show="divCadastro">
+
+                <div class="widget-box">
+                    <div class="widget-title"><span class="icon"> <i class="icon-align-justify"></i> </span>
+                        <h5>Formulário</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <form class="form-horizontal">
+                            <div class="control-group">
+                                <label class="control-label">Nome do Produto *:</label>
+
+                                <div class="controls">
+                                    <input type="text" class="span11" placeholder="Nome do Produto" ng-model="produto.nome"/>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Categoria *:</label>
+
+                                <div class="controls" ng-controller="categorias" ng-init="listarCategorias()">
+                                    <div class="span7">
+                                    <select ng-model="produto.categoria"  id="categoria" name="categoria">
+                                        <option ng-repeat="cat in categorias" value="{{cat.nome}}">{{cat.nome}}</option>
+                                    </select>
+                                        </div>
+                                    <div class="span4">
+                                    <button type="submit" class="btn btn-success" data-toggle="modal" data-target="#modalCategoria" >NOVA CATEGORIA</button>
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Valor de Venda *:</label>
+
+                                <div class="controls">
+                                    <input type="text" class="span11" placeholder="Valor de Venda" ng-model="produto.valor"/>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Fornecedor *:</label>
+
+                                <div class="controls" ng-controller="fornecedores" ng-init="listarFornecedores()">
+                                    <div class="span7">
+                                        <select ng-model="produto.fornecedor" id="fornecedor" name="fornecedor">
+                                            <option ng-repeat="for in fornecedores" value="{{for.nome}}">{{for.nome}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="span4">
+                                        <button type="submit" class="btn btn-success" data-toggle="modal" data-target="#modalFornecedor">NOVO FORNECEDOR</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label">Descrição</label>
+
+                                <div class="controls">
+                                    <textarea class="span11" ng-model="produto.descricao"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions" style="color: red">
+                                <button type="submit" class="btn btn-success" ng-click="cadastrarProduto()">Salvar</button>
+                                <button type="button" class="btn btn-danger" ng-click="mudarDivCadastro()">Cancelar</button>
+                                <button type="button" class="btn btn-warning">Limpar</button>
+                                {{respostaFormulario}}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="span6" ng-show="divCadastro">
+                <div class="widget-box">
+                    <div class="widget-title"><span class="icon"> <i class="icon-signal"></i> </span>
+                        <h5>10 Últimos Produtos Cadastrados</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Fornecedor</th>
+                                <th>Detalhes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in lista10Produtos">
+                                <td>{{item.nome}}</td>
+                                <td>{{item.categoria}}</td>
+                                <td>R$ {{item.valor}}</td>
+                                <td>{{item.fornecedor}}</td>
+                                <td><a href="#">Detalhes</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="span11" ng-hide="divCadastro">
+                <button class="btn btn-success" ng-click="mudarDivCadastro()">Novo Produto</button>
+                <button class="btn btn-info" data-toggle="modal" data-target="#modalEstoque">GERENCIAR ESTOQUE</button>
+                <div class="widget-box">
+                    <div class="widget-title"><span class="icon"> <i class="icon-signal"></i> </span>
+                        <h5>Todos Produtos Cadastrados</h5>
+                    </div>
+                    <div class="widget-content nopadding">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Valor</th>
+                                <th>Fornecedor</th>
+                                <th>Detalhes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="prod in listaProdutos">
+                                    <td>{{prod.nome}}</td>
+                                    <td>{{prod.categoria}}</td>
+                                    <td>R$ {{prod.valor}}</td>
+                                    <td>{{prod.fornecedor}}</td>
+                                    <td><a href="#">Detalhes</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalCategoria" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" ng-controller="categorias">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cadastro de Categoria</h5>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="control-group">
+                        <label class="control-label">Nome da Categoria :</label>
+
+                        <div class="controls">
+                            <input type="text" placeholder="Nome da Categoria" ng-model="categoria.nome"/>
+                        </div>
+                        <p style="color: red">{{respostaCategoria}}</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
+                <button type="submit" class="btn btn-success" ng-click="cadastrarCategoria()">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalFornecedor" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" ng-controller="fornecedores">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Cadastro de Fornecedor</h5>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="control-group">
+                        <label class="control-label">Nome do Fornecedor :</label>
+
+                        <div class="controls">
+                            <input type="text" placeholder="Nome do Fornecedor" ng-model="fornecedor.nome"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-success" ng-click="cadastrarFornecedor()">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row-fluid">
+    <div id="footer" class="span12"> 2017 &copy; Matrix Admin | Painel desenvolvido por <a style="color: white" href="http://www.nicolasfontes.com.br" target="_blank">Nicolas Fontes</a>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery.ui.custom.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-colorpicker.js"></script>
+<script src="js/bootstrap-datepicker.js"></script>
+<script src="js/masked.js"></script>
+<script src="js/jquery.uniform.js"></script>
+<script src="js/select2.min.js"></script>
+<script src="js/matrix.js"></script>
+<script src="js/matrix.form_common.js"></script>
+<script src="js/wysihtml5-0.3.0.js"></script>
+<script src="js/jquery.peity.min.js"></script>
+<script src="js/bootstrap-wysihtml5.js"></script>
+<script>
+    $('.textarea_editor').wysihtml5();
+</script>
+</body>
+</html>
